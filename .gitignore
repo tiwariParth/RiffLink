@@ -1,2 +1,5 @@
 server/.env
 server/node_modules
+
+# token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWI3YWJmZjI4NmEzMWMzNWUxNDIzM2YiLCJpYXQiOjE3MDY1MzY4NTAsImV4cCI6MTcwNjU0MDQ1MH0.UNcyiN6tpvPJssZ2-bknpForBrND49HGlkwcthTbGtw",
+# userID :"65b7abff286a31c35e14233f"
