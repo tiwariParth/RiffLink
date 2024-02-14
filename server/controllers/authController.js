@@ -1,42 +1,61 @@
 // src/controllers/authController.js
-
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const zod = require("zod");
+const express = require("express");
+const app = express();
+const bcrypt = require("bcrypt");
+app.use(express.json());
 
+const UserSignUp = zod.object({
+  username: zod.string().min(3),
+  userEmail: zod.string().email(),
+  password: zod.string().min(3),
+});
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { success, data } = UserSignUp.safeParse(req.body);
+    if (!success) {
+      return res.status(411).json({
+        msg: "Invalid Credentials",
+      });
+    }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ userEmail: data.userEmail });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
     // Create a new user
     const newUser = new User({
-      username,
-      email,
+      username: data.username,
+      userEmail: data.userEmail,
       password: hashedPassword,
     });
+
+    console.log(newUser);
 
     // Save the user to the database
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Error registering user:", error.message);
+    console.error("Error registering user:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+const UserSignIn = zod.object({
+  email: zod.string().email(),
+  password: zod.string().min(3),
+});
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = UserSignIn.safeParse(req.body);
 
     // Check if user exists
     const user = await User.findOne({ email });
